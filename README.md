@@ -33,3 +33,13 @@ git push origin main
 ```
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+
+### PNG image compression
+
+[pngquant](https://crates.io/crates/pngquant) is a PNG compressor that significantly reduces file sizes by converting images to a 
+more efficient 8-bit PNG format with alpha channel (often 60-80% smaller than 24/32-bit PNG files). Compressed images are fully 
+standards-compliant and are supported by all web browsers and operating systems.
+
+```
+pngquant --force --ext=.png --quality=65-80 *.png
+```

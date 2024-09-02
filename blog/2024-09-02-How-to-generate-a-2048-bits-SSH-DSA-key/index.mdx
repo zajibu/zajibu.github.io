@@ -5,6 +5,8 @@ authors: [octoape]
 tags: [ssh-dsa, ssh-dss, 2048-bits, ssh-keygen, puttygen, sftp]
 ---
 
+### 问题描述
+
 SFTP 服务器需要一个 2048 bits 的 DSA 密钥，果断掏出以下命令：
 
 ```bash
@@ -16,6 +18,8 @@ ssh-keygen -t dsa -b 2048
 ```
 Invalid DSA key length: must be 1024 bits
 ```
+
+### 解决办法
 
 搜索得知 ssh-keygen 不支持生成 2048 bits 的 DSA 密钥，但是 puttygen 支持。操作流程如下：
 
@@ -29,11 +33,11 @@ Invalid DSA key length: must be 1024 bits
 
 2、运行 puttygen.exe，显示如下界面：
 
-    ![打开 puttygen.exe](./puttygen_1.png)
+    ![打开 puttygen.exe](./puttygen1.png)
 
 3、选择 `DSA` -> 点击 `Generate` -> 在`空白区域随机移动鼠标`，完成后显示如下界面：
 
-    ![生成 DSA 密钥](./puttygen_2.png)
+    ![生成 DSA 密钥](./puttygen2.png)
 
     :::tip
     图中的 2048 用于设置密钥长度为 2048 bits
@@ -45,3 +49,7 @@ Invalid DSA key length: must be 1024 bits
     保存的私钥是 putty 格式的，可以点击顶部菜单 `Conversions` -> `Export OpenSSH key` 
     导出 OpenSSH 格式的私钥。
     :::
+
+### 参考链接
+
+    - https://serverfault.com/questions/664676/ssh-with-dsa-2048-bits-key
