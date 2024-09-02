@@ -2,11 +2,10 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-console.log("--------------- URL --------------:" + process.env.URL)
 const config: Config = {
   title: '杂记簿',
   tagline: '记录生活的碎碎念......',
-  favicon: 'img/favicon.ico',
+  favicon: '/favicon.ico',
 
   // Set the production url of your site here
   url: process.env.URL || 'https://zajibu.github.io',
@@ -64,7 +63,7 @@ const config: Config = {
         //   position: 'left',
         //   label: 'Tutorial',
         // },
-        // {to: '/blog', label: 'Blog', position: 'left'},
+        {to: '/blog', label: '博客', position: 'left'},
         // {
         //   href: 'https://github.com/facebook/docusaurus',
         //   label: 'GitHub',
@@ -80,6 +79,7 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: ['bash','java','rust'],
     },
   } satisfies Preset.ThemeConfig,
 };
