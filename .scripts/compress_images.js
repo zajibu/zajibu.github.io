@@ -14,13 +14,14 @@ for (let idx in files) {
     let status = temp[0].toLowerCase();
     let filePath = root + "/" + temp[1];
     let extName = extname(filePath).slice(1);
-    if (~types.indexOf(status) && extName === 'png') {
-        access(filePath, constants.F_OK, (err) => {
-            if (!err) {
-                console.log("Start compressing -> " + filePath);
-                execSync("pngquant --force --ext=.png --quality=45-60 " + filePath);
-                execSync("git add " + temp[1]);
-            }
-        });
+    if (types.indexOf(status) < 0 || extName !== 'png') {
+        continue;
     }
+    access(filePath, constants.F_OK, (err) => {
+        if (!err) {
+            console.log("Start compressing -> " + filePath);
+            execSync("pngquant --force --ext=.png --quality=45-60 " + filePath);
+            execSync("git add " + temp[1]);
+        }
+    });
 }
