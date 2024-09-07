@@ -1,0 +1,123 @@
+---
+slug: restore-windows-photo-viewer
+title: 恢复 Windows 照片查看器
+authors: [octoape]
+tags: [windows, photoviewer, ltsc]
+---
+
+### 问题描述
+
+安装 Windows 10 LTSC 之后发现打开图片都是用的系统自带的画图，感觉很不习惯。搜索得知因为
+LTSC 版没有微软应用商店，所以不支持 Windows.Photos 应用。替代方案是使用老版本的 Windows 
+Photo Viewer 查看图片。
+
+### 解决办法
+
+其实网上解决此问题的网页很多，在此将我认为最简单的结果办法记录一下。
+
+<!-- truncate -->
+
+1、复制一下注册表保存成 `.reg` 后缀的文件，或者直接[下载](https://www.tenforums.com/attachments/tutorials/233056d1557269998-restore-windows-photo-viewer-windows-10-a-restore_windows_photo_viewer_current_user.reg)；
+    
+    ```
+    Windows Registry Editor Version 5.00
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.bmp]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.cr2]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.dib]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.gif]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.ico]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.jfif]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.jpe]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.jpeg]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.jpg]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.jxr]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.png]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.tif]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.tiff]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Classes\.wdp]
+    @=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.bmp\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.cr2\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.dib\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.gif\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ico\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.jpe\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.jpeg\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.bmp\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.jfif\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.jpeg\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.jpg\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.jxr\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.png\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.tif\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.tiff\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.wdp\OpenWithProgids]
+    "PhotoViewer.FileAssoc.Tiff"=-
+    ```
+
+2、双击运行 `.reg` 文件写入注册表；
+
+3、`右键`点击图片 -> 点击`属性` -> 点击`打开方式` -> 选择`图片查看器`。
+
+### 参考链接
+
+    - https://learn.microsoft.com/zh-cn/archive/msdn-technet-forums/90aac5d5-101b-41dd-a385-7d22d6adbc49
+    - https://www.tenforums.com/tutorials/14312-restore-windows-photo-viewer-windows-10-a.html
