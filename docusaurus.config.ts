@@ -64,6 +64,7 @@ const config: Config = {
         //   label: 'Tutorial',
         // },
         {to: '/blog', label: '博客', position: 'left'},
+        {to: '/favorites', label: '收藏夹', position: 'left'},
         // {
         //   href: 'https://github.com/facebook/docusaurus',
         //   label: 'GitHub',
