@@ -1,0 +1,123 @@
+---
+slug: failed-to-start-docker
+title: 记一次 docker 启动失败
+tags: [docker, docker0, docker-forwarding]
+---
+
+### 问题一
+
+使用 docker 部署了 hoppscotch。今天使用的时候突然出现 Workspace 无法加载，
+查看日志发现是 PostgreSQL 访问失败。本着重启解决大部分问的原则重启 docker，
+但是发生一下错误：
+
+<!-- truncate -->
+
+```
+Oct 30 18:53:06 localhost dockerd[1508990]: time="2024-10-30T18:53:06.391224663+09:00" level=info msg="Starting up"
+Oct 30 18:53:06 localhost dockerd[1508990]: time="2024-10-30T18:53:06.428470983+09:00" level=info msg="[graphdriver] using prior storage driver: overlay2"
+Oct 30 18:53:06 localhost dockerd[1508990]: time="2024-10-30T18:53:06.437250864+09:00" level=info msg="Loading containers: start."
+Oct 30 18:53:06 localhost dockerd[1508990]: time="2024-10-30T18:53:06.460754201+09:00" level=info msg="Firewalld: docker zone already exists, returning"
+Oct 30 18:53:06 localhost firewalld[1508154]: ERROR: NAME_CONFLICT: new_policy_object(): 'docker-forwarding'
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D PREROUTING -m addrtype --dst-type LOCAL -j DOCKER' failed: iptables: Bad rule (does a matching rule exist>
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL ! --dst 127.0.0.0/8 -j DOCKER' failed: iptables: Bad rule (does a mat>
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL -j DOCKER' failed: iptables: Bad rule (does a matching rule exist in >
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D PREROUTING' failed: iptables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D OUTPUT' failed: iptables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t filter -F DOCKER-ISOLATION' failed: iptables: No chain/target/match by that name.
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t filter -X DOCKER-ISOLATION' failed: iptables: No chain/target/match by that name.
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D PREROUTING -m addrtype --dst-type LOCAL -j DOCKER' failed: ip6tables: Bad rule (does a matching rule exi>
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL ! --dst ::1/128 -j DOCKER' failed: ip6tables: Bad rule (does a match>
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL -j DOCKER' failed: ip6tables: Bad rule (does a matching rule exist i>
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D PREROUTING' failed: ip6tables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:53:06 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D OUTPUT' failed: ip6tables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:53:07 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t filter -F DOCKER-ISOLATION' failed: ip6tables: No chain/target/match by that name.
+Oct 30 18:53:07 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t filter -X DOCKER-ISOLATION' failed: ip6tables: No chain/target/match by that name.
+Oct 30 18:53:07 localhost dockerd[1508990]: time="2024-10-30T18:53:07.212558839+09:00" level=info msg="Default bridge (docker0) is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to se>
+Oct 30 18:53:07 localhost firewalld[1508154]: ERROR: ZONE_CONFLICT: 'docker0' already bound to a zone
+Oct 30 18:53:07 localhost dockerd[1508990]: time="2024-10-30T18:53:07.313614050+09:00" level=info msg="stopping event stream following graceful shutdown" error="<nil>" module=libcontainerd namespace=moby
+Oct 30 18:53:07 localhost dockerd[1508990]: failed to start daemon: Error initializing network controller: error creating default "bridge" network: Failed to program NAT chain: ZONE_CONFLICT: 'docker0' already b>
+Oct 30 18:53:07 localhost systemd[1]: docker.service: Main process exited, code=exited, status=1/FAILURE
+Oct 30 18:53:07 localhost systemd[1]: docker.service: Failed with result 'exit-code'.
+-- Subject: Unit failed
+-- Defined-By: systemd
+-- Support: https://support.oracle.com
+-- 
+-- The unit docker.service has entered the 'failed' state with result 'exit-code'.
+Oct 30 18:53:07 localhost systemd[1]: Failed to start Docker Application Container Engine.
+-- Subject: Unit docker.service has failed
+-- Defined-By: systemd
+-- Support: https://support.oracle.com
+```
+
+分析日志得知主要的问题有如下几条：
+
+```
+Oct 30 18:53:06 localhost firewalld[1508154]: ERROR: NAME_CONFLICT: new_policy_object(): 'docker-forwarding'
+Oct 30 18:53:07 localhost firewalld[1508154]: ERROR: ZONE_CONFLICT: 'docker0' already bound to a zone
+Oct 30 18:53:07 localhost dockerd[1508990]: time="2024-10-30T18:53:07.313614050+09:00" level=info msg="stopping event stream following graceful shutdown" error="<nil>" module=libcontainerd namespace=moby
+Oct 30 18:53:07 localhost dockerd[1508990]: failed to start daemon: Error initializing network controller: error creating default "bridge" network: Failed to program NAT chain: ZONE_CONFLICT: 'docker0' already b>
+```
+
+这个问题本质的问题是 docker0 虚拟网卡冲突，执行以下命令可以解决：
+
+```
+sudo ip link set docker0 down
+```
+
+### 问题二
+
+解决问题一以后重新启动又出现以下问题：
+
+```
+Oct 30 18:55:59 localhost dockerd[1509219]: time="2024-10-30T18:55:59.394530387+09:00" level=info msg="Starting up"
+Oct 30 18:55:59 localhost dockerd[1509219]: time="2024-10-30T18:55:59.434660598+09:00" level=info msg="[graphdriver] using prior storage driver: overlay2"
+Oct 30 18:55:59 localhost dockerd[1509219]: time="2024-10-30T18:55:59.443236512+09:00" level=info msg="Loading containers: start."
+Oct 30 18:55:59 localhost dockerd[1509219]: time="2024-10-30T18:55:59.465636490+09:00" level=info msg="Firewalld: docker zone already exists, returning"
+Oct 30 18:55:59 localhost firewalld[1508154]: ERROR: NAME_CONFLICT: new_policy_object(): 'docker-forwarding'
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D PREROUTING -m addrtype --dst-type LOCAL -j DOCKER' failed: iptables: Bad rule (does a matching rule exist>
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL ! --dst 127.0.0.0/8 -j DOCKER' failed: iptables: Bad rule (does a mat>
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL -j DOCKER' failed: iptables: Bad rule (does a matching rule exist in >
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D PREROUTING' failed: iptables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t nat -D OUTPUT' failed: iptables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t filter -F DOCKER-ISOLATION' failed: iptables: No chain/target/match by that name.
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/iptables -w10 -t filter -X DOCKER-ISOLATION' failed: iptables: No chain/target/match by that name.
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D PREROUTING -m addrtype --dst-type LOCAL -j DOCKER' failed: ip6tables: Bad rule (does a matching rule exi>
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL ! --dst ::1/128 -j DOCKER' failed: ip6tables: Bad rule (does a match>
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D OUTPUT -m addrtype --dst-type LOCAL -j DOCKER' failed: ip6tables: Bad rule (does a matching rule exist i>
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D PREROUTING' failed: ip6tables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:55:59 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t nat -D OUTPUT' failed: ip6tables: Bad rule (does a matching rule exist in that chain?).
+Oct 30 18:56:00 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t filter -F DOCKER-ISOLATION' failed: ip6tables: No chain/target/match by that name.
+Oct 30 18:56:00 localhost firewalld[1508154]: WARNING: COMMAND_FAILED: '/usr/sbin/ip6tables -w10 -t filter -X DOCKER-ISOLATION' failed: ip6tables: No chain/target/match by that name.
+Oct 30 18:56:00 localhost dockerd[1509219]: time="2024-10-30T18:56:00.443904779+09:00" level=info msg="Firewalld: interface docker0 already part of docker zone, returning"
+Oct 30 18:56:00 localhost dockerd[1509219]: time="2024-10-30T18:56:00.635015115+09:00" level=info msg="Default bridge (docker0) is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to se>
+Oct 30 18:56:00 localhost dockerd[1509219]: time="2024-10-30T18:56:00.637453422+09:00" level=info msg="stopping event stream following graceful shutdown" error="<nil>" module=libcontainerd namespace=moby
+Oct 30 18:56:00 localhost dockerd[1509219]: failed to start daemon: Error initializing network controller: error creating default "bridge" network: cannot create network 4dd1856ac790dca9c11437ec3012f0b9727f78747>
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6384] device (docker0): state change: unmanaged -> unavailable (reason 'connection-assumed', sys-iface-state: 'external')
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6393] device (docker0): state change: unavailable -> disconnected (reason 'connection-assumed', sys-iface-state: 'external')
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6406] device (docker0): Activation: starting connection 'docker0' (856eaee9-faed-403b-9da1-ae083b869b04)
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6408] device (docker0): state change: disconnected -> prepare (reason 'none', sys-iface-state: 'external')
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6413] device (docker0): state change: prepare -> config (reason 'none', sys-iface-state: 'external')
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6416] device (docker0): state change: config -> ip-config (reason 'none', sys-iface-state: 'external')
+Oct 30 18:56:00 localhost NetworkManager[76618]: <info>  [1730282160.6421] device (docker0): state change: ip-config -> ip-check (reason 'none', sys-iface-state: 'external')
+Oct 30 18:56:00 localhost systemd[1]: docker.service: Main process exited, code=exited, status=1/FAILURE
+Oct 30 18:56:00 localhost systemd[1]: docker.service: Failed with result 'exit-code'.
+-- Subject: Unit failed
+-- Defined-By: systemd
+-- Support: https://support.oracle.com
+-- 
+-- The unit docker.service has entered the 'failed' state with result 'exit-code'.
+Oct 30 18:56:00 localhost dbus-daemon[1271]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.65' (uid=0 pid=76618 >
+Oct 30 18:56:00 localhost systemd[1]: Failed to start Docker Application Container Engine.
+```
+
+此问题执行以下命令可以解决：
+
+```
+sudo mv /var/lib/docker/network /var/lib/docker/network.backup
+```
+
+再次重新启动 docker 没有出现问题，启动成功。感谢万能的互联网！！！
+
+### 参考链接
+
+    - https://bbs.archlinux.org/viewtopic.php?id=214311
