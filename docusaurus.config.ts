@@ -3,8 +3,8 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: '杂记簿',
-  tagline: '记录生活的碎碎念......',
+  title: '杂记',
+  tagline: '记录生活的琐碎......',
   favicon: '/favicon.ico',
 
   // Set the production url of your site here
@@ -39,6 +39,7 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
+          blogSidebarTitle: '近期文章'
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -51,7 +52,7 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: '杂记簿',
+      title: '杂记',
       // logo: {
       //   alt: '杂记簿',
       //   src: 'img/logo.svg',
@@ -75,7 +76,7 @@ const config: Config = {
     footer: {
       style: 'dark',
       links: [],
-      copyright: `Copyright © ${new Date().getFullYear()} zajibu.com`,
+      copyright: `Copyright © ${new Date().getFullYear()} kuijiang.com`,
     },
     prism: {
       theme: prismThemes.github,

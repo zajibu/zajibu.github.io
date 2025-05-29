@@ -1,0 +1,24 @@
+---
+slug: rz-upload-file-with-garbled-chars
+title: 使用 rz 上传文件出现乱码
+tags: [zmodem, rz, garbled-chars]
+---
+
+### 问题原因
+
+使用 `rz` 上传文件有时会出现乱码，导致这种情况的主要原因是 `rz` 对文件进行了读取和解析。
+
+<!-- truncate -->
+
+### 解决方法
+
+使用 `rz -be` 上传文件，阻止其进行读取和解析。参数说明如下：
+
+* `-b` `--binary` 以二进制方式传输，不解释为 ASCII 字符
+* `-e` `--escape` 对所有控制字符转义，比如 Ctrl、Del 等
+
+可以设置 `rz` 的别名，使其自动带上 `-be` 参数。编辑 `~/.bash_profile` 文件追加如下内容：
+
+```bash
+alias rz="rz -be"
+```

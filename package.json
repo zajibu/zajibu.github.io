@@ -1,13 +1,13 @@
 {
-  "name": "zajibu.com",
+  "name": "zaji.kuijiang.com",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "cross-env URL=https://zajibu.com docusaurus build",
+    "build": "cross-env URL=https://zaji.kuijiang.com docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "deploy": "cross-env URL=https://zajibu.com docusaurus deploy",
+    "deploy": "cross-env URL=https://zaji.kuijiang.com docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
@@ -19,19 +19,19 @@
     "compress_images"
   ],
   "dependencies": {
-    "@docusaurus/core": "^3.6.3",
-    "@docusaurus/preset-classic": "^3.6.3",
+    "@docusaurus/core": "^3.8.0",
+    "@docusaurus/preset-classic": "^3.8.0",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "zajibu.com": "file:"
+    "zaji.kuijiang.com": "file:"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.6.3",
-    "@docusaurus/tsconfig": "^3.5.2",
-    "@docusaurus/types": "^3.5.2",
+    "@docusaurus/module-type-aliases": "^3.8.0",
+    "@docusaurus/tsconfig": "^3.8.0",
+    "@docusaurus/types": "^3.8.0",
     "cross-env": "^7.0.3",
     "pre-commit": "^1.2.2",
     "typescript": "~5.2.2"
